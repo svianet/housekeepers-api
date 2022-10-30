@@ -1,12 +1,20 @@
 "use strict";
 
+require("dotenv").config();
 const express = require("express");
 //const logger = require("morgan");
 const app = express();
 const port = 3001;
 
-// parse request bodies (req.body)
-app.use(express.urlencoded({ extended: true }));
+// parse requests of content-type - application/json
+app.use(express.json());
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
 // log
 //app.use(logger("dev"));
 
