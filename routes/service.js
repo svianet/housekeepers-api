@@ -1,17 +1,15 @@
 'use strict';
 
 const { Router } = require('express');
-const userController = require('../controllers/user');
+const serviceController = require('../controllers/service');
 
 const api = Router();
 
-api.get('/', userController.getUsers);
+api.get('/', serviceController.getServices);
 
 api.get('/:id', function (req, res) {
   let { id } = req.params;
-  res.send(`Person: ${id}`);
+  res.send(`Service: ${id}`);
 });
-
-api.post('/', userController.addUser);
 
 module.exports = api;

@@ -1,12 +1,17 @@
 'use strict';
-const Model = require('../models/model.js');
+const Model = require('../models/model');
 const User = require('../models/User');
 
-const userModel = new Model('user');
+const userModel = new Model('public.user');
 
 const getUsers = async (req, res, next) => {
+  // res.status(200).json({ success: true, data: {
+  //   id: "teste",
+  //   name: "Eliandro",
+  //   email: "e@s.com"
+  // } });
   try {
-    const data = await userModel.select('id, name');
+    const data = await userModel.select('user_id, email');
     res.status(200).json({ success: true, data: data.rows });
   } catch (err) {
     res.status(200).json({ success: false, error: err.stack });
@@ -14,12 +19,14 @@ const getUsers = async (req, res, next) => {
 };
 
 const addUser = async (req, res, next) => {
-  const { username, password, email, bio } = req.body;
+  const { user_id, password, email } = req.body;
+
   try {
-    const user = new User({ username, password, email, bio });
+    const user = new User({ user_id, password, email });
     const result = await user.createUser();
     res.send(user);
   } catch (error) {
+    console.log(error)
     const errorToThrow = new Error();
     switch (error?.code) {
       case '23505':
@@ -34,5 +41,5 @@ const addUser = async (req, res, next) => {
   }
 };
 module.exports = {
-  getUsers,
+  getUsers, addUser
 };

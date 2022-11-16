@@ -1,13 +1,11 @@
 {
   "name": "housekeepers-api",
   "version": "1.0.0",
-  "description": "backend",
+  "description": "housekeepers project",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepush": "npm run lint",
-    "start": "node index.js"
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -19,18 +17,10 @@
     "url": "https://github.com/svianet/housekeepers-api/issues"
   },
   "homepage": "https://github.com/svianet/housekeepers-api#readme",
-  "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.20.1",
-    "nodemon": "^2.0.20"
-  },
   "dependencies": {
-    "bcrypt": "^5.1.0",
-    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "morgan": "^1.10.0",
+    "nodemon": "^2.0.20",
     "pg": "^8.8.0"
   }
 }
