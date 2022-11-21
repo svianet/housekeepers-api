@@ -7,11 +7,11 @@ const api = Router();
 
 api.get('/', userController.getUsers);
 
+api.post('/', userController.addUser);
+
 api.get('/:id', function (req, res) {
   let { id } = req.params;
   res.send(`Person: ${id}`);
 });
-
-api.post('/', userController.addUser);
 
 module.exports = api;

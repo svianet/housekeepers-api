@@ -8,6 +8,9 @@ Could host: AWS
 We willl use mongoDB to control session.
 Follow https://www.mongodb.com/docs/manual/administration/install-community/ to know install it
 
+# References
+https://auth0.com/blog/node-js-and-express-tutorial-building-and-securing-restful-apis/
+
 # Database connection
 
 There is a develop environment created at AWS, open to public access. If you what install postgreSQL database in your local machine, follow the instructions on https://www.postgresql.org/download/
