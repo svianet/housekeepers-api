@@ -12,6 +12,15 @@ CREATE TABLE IF NOT EXISTS public.account
     PRIMARY KEY (user_id)
 );
 
+ALTER TABLE IF EXISTS public.account
+    ADD COLUMN account_status character varying(1) DEFAULT 'P';
+
+COMMENT ON COLUMN public.account.account_status
+    IS 'P - Pending
+V - Validated
+B - Blocked
+X - Removed';
+
 COMMENT ON COLUMN public.account.failed_access
     IS 'Quantity of access to the system with the wrong password';
 
@@ -25,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.person
     pers_id serial NOT NULL,
     first_name character varying(100) NOT NULL,
     last_name character varying(100) NOT NULL,
-    birthday time without time zone,
+    birthday timestamp without time zone,
     gender character varying(1),
     bio text,
     PRIMARY KEY (pers_id)

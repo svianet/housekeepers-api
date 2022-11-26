@@ -9,7 +9,9 @@ We willl use mongoDB to control session.
 Follow https://www.mongodb.com/docs/manual/administration/install-community/ to know install it
 
 # References
-https://auth0.com/blog/node-js-and-express-tutorial-building-and-securing-restful-apis/
+Security and express: https://auth0.com/blog/node-js-and-express-tutorial-building-and-securing-restful-apis/
+ORM: https://sequelize.org/docs/v6/
+Date and time manipulation: https://day.js.org/docs/en/parse/parse
 
 # Database connection
 

@@ -10,5 +10,11 @@ class Model {
     if (where) query += where;
     return this.db.query(query);
   }
+  async insert(data) {
+    let fields = data.keys;
+    let values = data.values;
+    let query = `INSERT INTO ${this.table} (${fields} values (${values})`;
+    return this.db.query(query);
+  }
 }
 module.exports = Model;

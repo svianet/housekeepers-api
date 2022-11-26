@@ -1,13 +1,7 @@
+// basic access to DB
 const { Pool } = require('pg');
-const env = process.env;
-
-const pool = new Pool({
-  host: env.DB_HOST,
-  database: env.DB_DATABASE,
-  user: env.DB_USER,
-  password: env.DB_PASSWORD,
-  port: env.DB_PORT,
-});
+const config = require('./db.config');
+const pool = new Pool(config);
 
 pool.on('connect', () => {
   console.log('Database OK!');
