@@ -13,11 +13,22 @@ const getUsers = async (req, res, next) => {
   }
 };
 
+const getUser = async (req, res, next) => {
+  try {
+    const { user_id } = req.query;
+    const where = `user_id = '${user_id}`;
+    const data = await userModel.select('user_id, email', where);
+    res.status(200).json({ success: true, data: data.rows });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const addUser = async (req, res, next) => {
   const { user_id, email } = req.body;
   try {
     const user = new User({ user_id, email });
-    const result = await user.createUser();
+    //const result = await user.createUser();
     res.send(user);
   } catch (error) {
     // console.log(error)
