@@ -255,6 +255,32 @@ CREATE TABLE IF NOT EXISTS public.contact
     PRIMARY KEY (contact_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.account_service
+(
+    user_id integer NOT NULL,
+    service_id integer NOT NULL,
+    PRIMARY KEY (user_id, service_id)
+);
+
+ALTER TABLE IF EXISTS public.account_config
+    ADD FOREIGN KEY (user_id)
+    REFERENCES public.account (user_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+ALTER TABLE IF EXISTS public.account_service
+    ADD FOREIGN KEY (service_id)
+    REFERENCES public.service (service_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.account_service
+    ADD FOREIGN KEY (user_id)
+    REFERENCES public.account (user_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
 ALTER TABLE IF EXISTS public.account
     ADD FOREIGN KEY (pers_id)
     REFERENCES public.person (pers_id) MATCH SIMPLE

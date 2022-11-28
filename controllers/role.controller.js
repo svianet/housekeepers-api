@@ -1,17 +1,17 @@
 'use strict';
 const db = require("../models");
-const Person = require("../models/person.model.js")(db.sequelize);
-const { tableName, schema } = Person.options;
+const Role = require("../models/role.model.js")(db.sequelize);
+const { tableName, schema } = Role.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT * FROM ${schema}.${tableName}`;
+  let sql = `SELECT role_id, role_name FROM ${schema}.${tableName}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
       } else {
-        res.status(404).send({ success: false, message: `Cannot find records.` });
+        res.status(404).send({ success: false, message: 'Cannot find records.' });
       }
     })
     .catch(err => {
@@ -22,7 +22,7 @@ const findAll = async (req, res, next) => {
 // operations using the ORM (insert, update, delete, findByPk)
 const findOne = async (req, res, next) => {
   const { id } = req.params;
-  Person.findByPk(id)
+  Role.findByPk(id)
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
@@ -36,20 +36,16 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  const { role_id, role_name } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    // needs to save other person information
-    const person = Person.build({ 
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+    const role = Role.build({
+        role_id: role_id,
+role_name: role_name
     });
-    await person.save({ transaction: t });
+    await role.save({ transaction: t });
 
-    res.status(200).json({ success: true, data: person });
+    res.status(200).json({ success: true, data: role });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -59,17 +55,15 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const { id } = req.params; // but get parameters
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  // @todo capture the attributes to create your class
+  const { role_id, role_name } = req.body;
   
-  Person.update({
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+  Role.update({
+        role_id: role_id,
+role_name: role_name
     },
     {
-      where: { pers_id: id }
+      where: { role_id: id }
     })
     .then(num => {
       if (num == 1) {
@@ -86,8 +80,8 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   const { id } = req.params;
   
-  Person.destroy({
-      where: { pers_id: id }
+  Role.destroy({
+      where: { role_id: id }
     })
     .then(num => {
       if (num == 1) {

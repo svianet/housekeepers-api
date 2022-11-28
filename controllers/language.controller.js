@@ -1,17 +1,17 @@
 'use strict';
 const db = require("../models");
-const Person = require("../models/person.model.js")(db.sequelize);
-const { tableName, schema } = Person.options;
+const Language = require("../models/language.model.js")(db.sequelize);
+const { tableName, schema } = Language.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT * FROM ${schema}.${tableName}`;
+  let sql = `SELECT lang_id, language_name, language_code FROM ${schema}.${tableName}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
       } else {
-        res.status(404).send({ success: false, message: `Cannot find records.` });
+        res.status(404).send({ success: false, message: 'Cannot find records.' });
       }
     })
     .catch(err => {
@@ -22,7 +22,7 @@ const findAll = async (req, res, next) => {
 // operations using the ORM (insert, update, delete, findByPk)
 const findOne = async (req, res, next) => {
   const { id } = req.params;
-  Person.findByPk(id)
+  Language.findByPk(id)
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
@@ -36,20 +36,17 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  const { lang_id, language_name, language_code } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    // needs to save other person information
-    const person = Person.build({ 
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+    const language = Language.build({
+      lang_id: lang_id,
+      language_name: language_name,
+      language_code: language_code
     });
-    await person.save({ transaction: t });
+    await language.save({ transaction: t });
 
-    res.status(200).json({ success: true, data: person });
+    res.status(200).json({ success: true, data: language });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -59,17 +56,16 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const { id } = req.params; // but get parameters
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  // @todo capture the attributes to create your class
+  const { lang_id, language_name, language_code } = req.body;
   
-  Person.update({
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+  Language.update({
+      lang_id: lang_id,
+      language_name: language_name,
+      language_code: language_code
     },
     {
-      where: { pers_id: id }
+      where: { lang_id: id }
     })
     .then(num => {
       if (num == 1) {
@@ -86,8 +82,8 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   const { id } = req.params;
   
-  Person.destroy({
-      where: { pers_id: id }
+  Language.destroy({
+      where: { lang_id: id }
     })
     .then(num => {
       if (num == 1) {

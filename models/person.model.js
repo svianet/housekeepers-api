@@ -47,14 +47,25 @@ const person = {
     validate: {
       len: [20,2000]
     }
+  },
+  full_name: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return `${this.first_name} ${this.last_name}`;
+    },
+    set(value) {
+      throw new Error('Do not try to set the `fullName` value!');
+    }
   }
 };
 
-module.exports = (sequelize, schema, tableName) => {
-    const Model = sequelize.define(tableName, person, {
-      timestamps: false,
-      tableName: tableName,
-      schema: schema
-    });
-    return Model;
-  };
+module.exports = (sequelize) => {
+  let schema = "public";
+  let tableName = "person";
+  const Model = sequelize.define(tableName, person, {
+    timestamps: false,
+    tableName: tableName,
+    schema: schema
+  });
+  return Model;
+};

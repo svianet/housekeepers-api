@@ -1,17 +1,17 @@
 'use strict';
 const db = require("../models");
-const Person = require("../models/person.model.js")(db.sequelize);
-const { tableName, schema } = Person.options;
+const Address = require("../models/address.model.js")(db.sequelize);
+const { tableName, schema } = Address.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT * FROM ${schema}.${tableName}`;
+  let sql = `SELECT adress_id, street_line1, street_line2, neighborhood, city, state, zipcode, pers_id FROM ${schema}.${tableName}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
       } else {
-        res.status(404).send({ success: false, message: `Cannot find records.` });
+        res.status(404).send({ success: false, message: 'Cannot find records.' });
       }
     })
     .catch(err => {
@@ -22,7 +22,7 @@ const findAll = async (req, res, next) => {
 // operations using the ORM (insert, update, delete, findByPk)
 const findOne = async (req, res, next) => {
   const { id } = req.params;
-  Person.findByPk(id)
+  Address.findByPk(id)
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
@@ -36,20 +36,22 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  const { adress_id, street_line1, street_line2, neighborhood, city, state, zipcode, pers_id } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    // needs to save other person information
-    const person = Person.build({ 
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+    const address = Address.build({
+        adress_id: adress_id,
+street_line1: street_line1,
+street_line2: street_line2,
+neighborhood: neighborhood,
+city: city,
+state: state,
+zipcode: zipcode,
+pers_id: pers_id
     });
-    await person.save({ transaction: t });
+    await address.save({ transaction: t });
 
-    res.status(200).json({ success: true, data: person });
+    res.status(200).json({ success: true, data: address });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -59,17 +61,21 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const { id } = req.params; // but get parameters
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  // @todo capture the attributes to create your class
+  const { adress_id, street_line1, street_line2, neighborhood, city, state, zipcode, pers_id } = req.body;
   
-  Person.update({
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+  Address.update({
+        adress_id: adress_id,
+street_line1: street_line1,
+street_line2: street_line2,
+neighborhood: neighborhood,
+city: city,
+state: state,
+zipcode: zipcode,
+pers_id: pers_id
     },
     {
-      where: { pers_id: id }
+      where: { adress_id: id }
     })
     .then(num => {
       if (num == 1) {
@@ -86,8 +92,8 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   const { id } = req.params;
   
-  Person.destroy({
-      where: { pers_id: id }
+  Address.destroy({
+      where: { adress_id: id }
     })
     .then(num => {
       if (num == 1) {

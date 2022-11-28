@@ -1,17 +1,17 @@
 'use strict';
 const db = require("../models");
-const Person = require("../models/person.model.js")(db.sequelize);
-const { tableName, schema } = Person.options;
+const ServiceCompletion = require("../models/service_completion.model.js")(db.sequelize);
+const { tableName, schema } = ServiceCompletion.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT * FROM ${schema}.${tableName}`;
+  let sql = `SELECT service_comp_id, service_comp_status, job_id, user_id, review, start_date, end_date, confirmation_code, appointment_id, confirmation_date FROM ${schema}.${tableName}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
       } else {
-        res.status(404).send({ success: false, message: `Cannot find records.` });
+        res.status(404).send({ success: false, message: 'Cannot find records.' });
       }
     })
     .catch(err => {
@@ -22,7 +22,7 @@ const findAll = async (req, res, next) => {
 // operations using the ORM (insert, update, delete, findByPk)
 const findOne = async (req, res, next) => {
   const { id } = req.params;
-  Person.findByPk(id)
+  ServiceCompletion.findByPk(id)
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
@@ -36,20 +36,24 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  const { service_comp_id, service_comp_status, job_id, user_id, review, start_date, end_date, confirmation_code, appointment_id, confirmation_date } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    // needs to save other person information
-    const person = Person.build({ 
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+    const service_completion = ServiceCompletion.build({
+        service_comp_id: service_comp_id,
+service_comp_status: service_comp_status,
+job_id: job_id,
+user_id: user_id,
+review: review,
+start_date: start_date,
+end_date: end_date,
+confirmation_code: confirmation_code,
+appointment_id: appointment_id,
+confirmation_date: confirmation_date
     });
-    await person.save({ transaction: t });
+    await service_completion.save({ transaction: t });
 
-    res.status(200).json({ success: true, data: person });
+    res.status(200).json({ success: true, data: service_completion });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -59,17 +63,23 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const { id } = req.params; // but get parameters
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  // @todo capture the attributes to create your class
+  const { service_comp_id, service_comp_status, job_id, user_id, review, start_date, end_date, confirmation_code, appointment_id, confirmation_date } = req.body;
   
-  Person.update({
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+  ServiceCompletion.update({
+        service_comp_id: service_comp_id,
+service_comp_status: service_comp_status,
+job_id: job_id,
+user_id: user_id,
+review: review,
+start_date: start_date,
+end_date: end_date,
+confirmation_code: confirmation_code,
+appointment_id: appointment_id,
+confirmation_date: confirmation_date
     },
     {
-      where: { pers_id: id }
+      where: { service_comp_id: id }
     })
     .then(num => {
       if (num == 1) {
@@ -86,8 +96,8 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   const { id } = req.params;
   
-  Person.destroy({
-      where: { pers_id: id }
+  ServiceCompletion.destroy({
+      where: { service_comp_id: id }
     })
     .then(num => {
       if (num == 1) {

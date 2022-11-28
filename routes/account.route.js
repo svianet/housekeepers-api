@@ -15,5 +15,7 @@ api.patch('/:id', controller.update);
 api.delete('/:id', controller.remove);
 
 // LOGIC BUSINESS ROUTES
+api.post('/approve', controller.approve);
+api.post('/reject', controller.reject);
 
 module.exports = api;

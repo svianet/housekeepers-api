@@ -1,17 +1,17 @@
 'use strict';
 const db = require("../models");
-const Person = require("../models/person.model.js")(db.sequelize);
-const { tableName, schema } = Person.options;
+const ScheduleDay = require("../models/schedule_day.model.js")(db.sequelize);
+const { tableName, schema } = ScheduleDay.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT * FROM ${schema}.${tableName}`;
+  let sql = `SELECT schedule_day_id, schedule_id, schedule_day, time_start, time_end FROM ${schema}.${tableName}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
       } else {
-        res.status(404).send({ success: false, message: `Cannot find records.` });
+        res.status(404).send({ success: false, message: 'Cannot find records.' });
       }
     })
     .catch(err => {
@@ -22,7 +22,7 @@ const findAll = async (req, res, next) => {
 // operations using the ORM (insert, update, delete, findByPk)
 const findOne = async (req, res, next) => {
   const { id } = req.params;
-  Person.findByPk(id)
+  ScheduleDay.findByPk(id)
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
@@ -36,20 +36,19 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  const { schedule_day_id, schedule_id, schedule_day, time_start, time_end } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    // needs to save other person information
-    const person = Person.build({ 
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+    const schedule_day = ScheduleDay.build({
+        schedule_day_id: schedule_day_id,
+schedule_id: schedule_id,
+schedule_day: schedule_day,
+time_start: time_start,
+time_end: time_end
     });
-    await person.save({ transaction: t });
+    await schedule_day.save({ transaction: t });
 
-    res.status(200).json({ success: true, data: person });
+    res.status(200).json({ success: true, data: schedule_day });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -59,17 +58,18 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const { id } = req.params; // but get parameters
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  // @todo capture the attributes to create your class
+  const { schedule_day_id, schedule_id, schedule_day, time_start, time_end } = req.body;
   
-  Person.update({
-      first_name: first_name, 
-      last_name: last_name, 
-      birthday: birthday, 
-      gender: gender, 
-      bio: bio
+  ScheduleDay.update({
+        schedule_day_id: schedule_day_id,
+schedule_id: schedule_id,
+schedule_day: schedule_day,
+time_start: time_start,
+time_end: time_end
     },
     {
-      where: { pers_id: id }
+      where: { schedule_day_id: id }
     })
     .then(num => {
       if (num == 1) {
@@ -86,8 +86,8 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   const { id } = req.params;
   
-  Person.destroy({
-      where: { pers_id: id }
+  ScheduleDay.destroy({
+      where: { schedule_day_id: id }
     })
     .then(num => {
       if (num == 1) {
