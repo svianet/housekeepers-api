@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const session = require('express-session');
 
 const routes = require('./routes');
 const app = express();
@@ -21,7 +22,18 @@ app.use(cors());
 // adding morgan to log HTTP requests
 app.use(morgan('combined'));
 
-// auth middleware
+// session
+const sess = {
+  secret: 'housekeeper app',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {}
+}
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie.secure = true // serve secure cookies
+}
+app.use(session(sess));
 
 // our routes (always call api/[router])
 // Also, we can create version route

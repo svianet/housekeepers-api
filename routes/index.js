@@ -1,5 +1,7 @@
 'use strict';
 const router = require('express').Router();
+const myAuth = require('../middlewares/auth.middleware');
+const authRouter = require('./auth.route');
 const accountRouter = require('./account.route');
 const accountConfigRouter = require('./account_config.route');
 const roleRouter = require('./role.route');
@@ -17,8 +19,9 @@ const serviceCompletionRouter = require('./service_completion.route');
 const jobRouter = require('./job.route');
 const searchRouter = require('./search.route');
 
-// add here new routes if exists
-router.use('/account', accountRouter);
+// add here new routes if exists. You have include the auth middleware
+router.use('/auth', authRouter);
+router.use('/account', myAuth, accountRouter);
 router.use('/account/config', accountConfigRouter);
 router.use('/role', roleRouter);
 router.use('/language', languageRouter);

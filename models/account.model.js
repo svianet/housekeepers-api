@@ -24,6 +24,9 @@ const account = {
   },
   account_status: {
     type: DataTypes.STRING
+  },
+  unique_user_id: {
+    type: DataTypes.STRING
   }
 };
 

@@ -7,13 +7,13 @@ CREATE TABLE IF NOT EXISTS public.account
 (
     user_id serial NOT NULL,
     email character varying(100) NOT NULL,
-    failed_access numeric NOT NULL DEFAULT 0,
+    failed_access integer NOT NULL DEFAULT 0,
     pers_id integer,
-    PRIMARY KEY (user_id)
+    account_status character varying(1) DEFAULT 'P',
+    unique_user_id character varying(36),
+    CONSTRAINT pk_user_id PRIMARY KEY (user_id),
+    CONSTRAINT un_email UNIQUE (email)
 );
-
-ALTER TABLE IF EXISTS public.account
-    ADD COLUMN account_status character varying(1) DEFAULT 'P';
 
 COMMENT ON COLUMN public.account.account_status
     IS 'P - Pending
@@ -23,6 +23,9 @@ X - Removed';
 
 COMMENT ON COLUMN public.account.failed_access
     IS 'Quantity of access to the system with the wrong password';
+
+COMMENT ON COLUMN public.account.unique_user_id
+    IS 'User''s ID from authsignal APP';
 
 CREATE UNIQUE INDEX un_user_email
     ON public.account USING btree
