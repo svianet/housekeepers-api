@@ -4,43 +4,28 @@
 const { DataTypes } = require("sequelize"); // Import the built-in data types
 const schedule_day = {
     schedule_day_id: {
-
         type: DataTypes.NUMBER
         , allowNull: false
         , autoIncrement: true
-        , primaryKey: true
-        
+        , primaryKey: true        
     },
-schedule_id: {
-
+    schedule_id: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-schedule_day: {
-
+    schedule_day: {
         type: DataTypes.STRING
         , allowNull: false
-        
-        
         , validate: { len: [0, 1] }
     },
-time_start: {
-
+    time_start: {
         type: DataTypes.STRING
         , allowNull: false
-        
-        
         , validate: { len: [0, 5] }
     },
-time_end: {
-
+    time_end: {
         type: DataTypes.STRING
         , allowNull: false
-        
-        
         , validate: { len: [0, 5] }
     }
 };

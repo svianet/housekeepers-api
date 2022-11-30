@@ -1,7 +1,7 @@
 'use strict';
 const db = require("../models");
-const ScheduleDay = require("../models/schedule_day.model.js")(db.sequelize);
-const { tableName, schema } = ScheduleDay.options;
+const ScheduleConfig = require("../models/schedule_day.model.js")(db.sequelize);
+const { tableName, schema } = ScheduleConfig.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
@@ -19,10 +19,14 @@ const findAll = async (req, res, next) => {
     });
 };
 
-// operations using the ORM (insert, update, delete, findByPk)
 const findOne = async (req, res, next) => {
-  const { id } = req.params;
-  ScheduleDay.findByPk(id)
+  const { schedule_id, id } = req.params;
+  ScheduleConfig.findOne({
+    where: {
+      schedule_id: schedule_id,
+      schedule_day_id: id
+    }
+  })
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
@@ -36,19 +40,18 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { schedule_day_id, schedule_id, schedule_day, time_start, time_end } = req.body;
+  const { schedule_id, schedule_day, time_start, time_end } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    const schedule_day = ScheduleDay.build({
-        schedule_day_id: schedule_day_id,
-schedule_id: schedule_id,
-schedule_day: schedule_day,
-time_start: time_start,
-time_end: time_end
+    const schedule_config = ScheduleConfig.build({
+      schedule_id: schedule_id,
+      schedule_day: schedule_day,
+      time_start: time_start,
+      time_end: time_end
     });
-    await schedule_day.save({ transaction: t });
+    await schedule_config.save({ transaction: t });
 
-    res.status(200).json({ success: true, data: schedule_day });
+    res.status(200).json({ success: true, data: schedule_config });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -57,16 +60,13 @@ time_end: time_end
 };
 
 const update = async (req, res, next) => {
-  const { id } = req.params; // but get parameters
-  // @todo capture the attributes to create your class
-  const { schedule_day_id, schedule_id, schedule_day, time_start, time_end } = req.body;
+  const { id } = req.params;
+  const { schedule_day, time_start, time_end } = req.body;
   
-  ScheduleDay.update({
-        schedule_day_id: schedule_day_id,
-schedule_id: schedule_id,
-schedule_day: schedule_day,
-time_start: time_start,
-time_end: time_end
+  ScheduleConfig.update({
+      schedule_day: schedule_day,
+      time_start: time_start,
+      time_end: time_end
     },
     {
       where: { schedule_day_id: id }
@@ -86,7 +86,7 @@ time_end: time_end
 const remove = async (req, res, next) => {
   const { id } = req.params;
   
-  ScheduleDay.destroy({
+  ScheduleConfig.destroy({
       where: { schedule_day_id: id }
     })
     .then(num => {

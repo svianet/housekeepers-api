@@ -4,148 +4,80 @@
 const { DataTypes } = require("sequelize"); // Import the built-in data types
 const job = {
     job_id: {
-
         type: DataTypes.NUMBER
         , allowNull: false
         , autoIncrement: true
-        , primaryKey: true
-        
+        , primaryKey: true        
     },
-job_type: {
-
+    job_type: {
         type: DataTypes.STRING
         , allowNull: false
-        
-        
         , validate: { len: [0, 1] }
     },
-start_date: {
-
+    start_date: {
         type: DataTypes.DATE
         , allowNull: true
-        
-        
-        
     },
-frequency: {
-
+    frequency: {
         type: DataTypes.STRING
         , allowNull: false
-        
-        
-        
     },
-days: {
-
+    days: {
         type: DataTypes.STRING
         , allowNull: true
-        
-        
         , validate: { len: [0, 7] }
     },
-zipcode: {
-
+    zipcode: {
         type: DataTypes.STRING
         , allowNull: false
-        
-        
-        
     },
-bedrooms: {
-
+    bedrooms: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-bathrooms: {
-
+    bathrooms: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-have_pets: {
-
+    have_pets: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-sq_footage: {
-
+    sq_footage: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-provide_supplies: {
-
+    provide_supplies: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-provide_equipment: {
-
+    provide_equipment: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-hour_rate_start: {
-
+    hour_rate_start: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-hour_rate_end: {
-
+    hour_rate_end: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-end_date: {
-
+    end_date: {
         type: DataTypes.DATE
         , allowNull: true
-        
-        
-        
     },
-user_id: {
-
+    user_id: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-job_description: {
-
+    job_description: {
         type: DataTypes.STRING
         , allowNull: true
-        
-        
-        
     },
-job_status: {
-
+    job_status: {
         type: DataTypes.STRING
         , allowNull: true
-        
-        
-        
     }
 };
 

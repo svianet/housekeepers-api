@@ -4,7 +4,7 @@ const controller = require('../controllers/address.controller');
 const api = Router();
 
 api.post('/', controller.create);
-api.get('/', controller.findAll);
+// api.get('/', controller.findAll);
 api.get('/:id', controller.findOne);
 api.patch('/:id', controller.update);
 api.delete('/:id', controller.remove);

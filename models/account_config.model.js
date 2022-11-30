@@ -2,8 +2,8 @@
 // const dayjs = require('dayjs');
 // const isSameOrAfter = require('dayjs/plugin/isSameOrAfter') // import plugin example
 const { DataTypes } = require("sequelize"); // Import the built-in data types
-const schedule = {
-    schedule_id: {
+const account_config = {
+    config_id: {
         type: DataTypes.NUMBER
         , allowNull: false
         , autoIncrement: true
@@ -11,21 +11,26 @@ const schedule = {
     },
     user_id: {
         type: DataTypes.NUMBER
+        , allowNull: false   
+    },
+    hour_rate_start: {
+        type: DataTypes.NUMBER
         , allowNull: false
     },
-    creation_date: {
-        type: DataTypes.DATE
+    hour_rate_end: {
+        type: DataTypes.NUMBER
         , allowNull: false
     },
-    schedule_name: {
-        type: DataTypes.STRING
+    years_experience: {
+        type: DataTypes.NUMBER
+        , allowNull: true
     }
 };
 
 module.exports = (sequelize) => {
     let schema = "public";
-    let tableName = "schedule";
-    const Model = sequelize.define(tableName, schedule, {
+    let tableName = "account_config";
+    const Model = sequelize.define(tableName, account_config, {
         timestamps: false,
         tableName: tableName,
         schema: schema

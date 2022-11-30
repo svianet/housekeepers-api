@@ -15,5 +15,10 @@ api.patch('/:id', controller.update);
 api.delete('/:id', controller.remove);
 
 // LOGIC BUSINESS ROUTES
+api.get('/phones/:pers_id', controller.findPhones);
+api.get('/emails/:pers_id', controller.findEmails);
+api.get('/languages/:pers_id', controller.findLanguages);
+api.get('/addresses/:pers_id', controller.findAddresses);
+api.post('/language', controller.addLanguage);
 
 module.exports = api;

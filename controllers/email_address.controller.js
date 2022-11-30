@@ -1,11 +1,11 @@
 'use strict';
 const db = require("../models");
-const Email = require("../models/email.model.js")(db.sequelize);
-const { tableName, schema } = Email.options;
+const EmailAddress = require("../models/email_address.model.js")(db.sequelize);
+const { tableName, schema } = EmailAddress.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT  FROM ${schema}.${tableName}`;
+  let sql = `SELECT email_id, email_address, pers_id FROM ${schema}.${tableName}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {
@@ -22,7 +22,7 @@ const findAll = async (req, res, next) => {
 // operations using the ORM (insert, update, delete, findByPk)
 const findOne = async (req, res, next) => {
   const { id } = req.params;
-  Email.findByPk(id)
+  EmailAddress.findByPk(id)
     .then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
@@ -36,15 +36,16 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const {  } = req.body;
+  const { email, pers_id } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    const email = Email.build({
-        
+    const email_address = EmailAddress.build({
+        email_address: email,
+        pers_id: pers_id
     });
-    await email.save({ transaction: t });
+    await email_address.save({ transaction: t });
 
-    res.status(200).json({ success: true, data: email });
+    res.status(200).json({ success: true, data: email_address });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -55,13 +56,13 @@ const create = async (req, res, next) => {
 const update = async (req, res, next) => {
   const { id } = req.params; // but get parameters
   // @todo capture the attributes to create your class
-  const {  } = req.body;
+  const { email, pers_id } = req.body;
   
-  Email.update({
-        
+  EmailAddress.update({
+      email_address: email
     },
     {
-      where: { null: id }
+      where: { email_id: id, pers_id: pers_id }
     })
     .then(num => {
       if (num == 1) {
@@ -78,8 +79,8 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   const { id } = req.params;
   
-  Email.destroy({
-      where: { null: id }
+  EmailAddress.destroy({
+      where: { email_id: id }
     })
     .then(num => {
       if (num == 1) {

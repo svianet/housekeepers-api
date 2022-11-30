@@ -1,13 +1,20 @@
 'use strict';
 const db = require("../models");
-const Applicant = require("../models/applicant.model.js")(db.sequelize);
-const { tableName, schema } = Applicant.options;
+const Application = require("../models/application.model.js")(db.sequelize);
+const { APPLICATION } = require('../util/constants');
+const { tableName, schema } = Application.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT  FROM ${schema}.${tableName}`;
-  db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
-    .then(data => {
+  const { job_id } = req.params;
+  let sql = `SELECT application_id, user_id, job_id, application_status, application_date
+      FROM public.application
+      where job_id = :job_id`;
+  db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT, 
+    replacements: {
+      job_id: job_id
+    }
+  }).then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
       } else {
@@ -21,9 +28,17 @@ const findAll = async (req, res, next) => {
 
 // operations using the ORM (insert, update, delete, findByPk)
 const findOne = async (req, res, next) => {
-  const { id } = req.params;
-  Applicant.findByPk(id)
-    .then(data => {
+  const { id, job_id } = req.params;
+  let sql = `SELECT application_id, user_id, job_id, application_status, application_date
+      FROM public.application
+      where job_id = :job_id
+      and application_id = :application_id`;
+  db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT, 
+    replacements: {
+      application_id: id, 
+      job_id: job_id      
+    }
+  }).then(data => {
       if (data) {
         res.status(200).json({ success: true, data: data });
       } else {
@@ -36,15 +51,18 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const {  } = req.body;
+  const { user_id, job_id } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    const applicant = Applicant.build({
-        
+    const application = Application.build({
+      user_id: user_id, 
+      job_id: job_id, 
+      application_status: APPLICATION.STATUS.REQUESTED,
+      application_date: new Date()
     });
-    await applicant.save({ transaction: t });
+    await application.save({ transaction: t });
 
-    res.status(200).json({ success: true, data: applicant });
+    res.status(200).json({ success: true, data: application });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -53,15 +71,15 @@ const create = async (req, res, next) => {
 };
 
 const update = async (req, res, next) => {
-  const { id } = req.params; // but get parameters
+  const { id, job_id } = req.params; // but get parameters
   // @todo capture the attributes to create your class
-  const {  } = req.body;
+  const { application_status } = req.body;
   
-  Applicant.update({
-        
+  Application.update({
+      application_status: application_status
     },
     {
-      where: { null: id }
+      where: { application_id: id, job_id: job_id }
     })
     .then(num => {
       if (num == 1) {
@@ -76,10 +94,10 @@ const update = async (req, res, next) => {
 }
 
 const remove = async (req, res, next) => {
-  const { id } = req.params;
+  const { id, job_id } = req.params;
   
-  Applicant.destroy({
-      where: { null: id }
+  Application.destroy({
+      where: { application_id: id, job_id: job_id }
     })
     .then(num => {
       if (num == 1) {

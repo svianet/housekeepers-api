@@ -29,15 +29,21 @@ app.use('/api', routes);
 
 // error middleware
 app.use((error, req, res, next) => {
-  console.log('Error Path: ', req.path)
-  // console.error('Stack: ', error.stack)  
+  if (req.app.get('env') === 'development') {
+    console.log('Error Path: ', req.path)
+    console.log(error);
+  }
 
+  let myError = new Error();
+  myError.statusCode = error.statusCode || 500;
+  myError.message = error.message;
+  myError.stack = error.stack;
+  
   // set locals, only providing error in development
   res.locals.message = error.message;
   res.locals.error = req.app.get('env') === 'development' ? error : {};
 
-  // if error already defined
-  res.status(error.statusCode || 500).send(error);
+  res.status(myError.statusCode).send(myError);
 })
 
 // starting the server

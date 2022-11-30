@@ -11,6 +11,30 @@ INSERT INTO public.language(lang_id, language_name, language_code)
 INSERT INTO public.language(lang_id, language_name, language_code)
 	VALUES (nextval('language_lang_id_seq'::regclass), 'Spanish', 'es');
 
+-- services
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Deep cleaning');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Bathroom cleaning');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Kitchen cleaning');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'General room cleaning');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Window washing');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Carpet shampooing');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Furniture treatment');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Laundry');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Vacuuming and/or mopping');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Cabinet Cleaning');
+INSERT INTO public.service(service_id, service_name)
+	VALUES (nextval('service_service_id_seq'::regclass), 'Move-out cleaning');
+
 -- ADMIN
 INSERT INTO public.person(pers_id, first_name, last_name, birthday, gender, bio)
 	VALUES (nextval('person_pers_id_seq'::regclass), 'Admin', 'Housekeeper', null, 'M', null);

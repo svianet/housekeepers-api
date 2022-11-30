@@ -1,6 +1,7 @@
 'use strict';
 const db = require("../models");
 const Person = require("../models/person.model.js")(db.sequelize);
+const PersonLanguage = require("../models/person_language.model")(db.sequelize);
 const { tableName, schema } = Person.options;
 
 // Operations using plain SQL (selects)
@@ -101,6 +102,109 @@ const remove = async (req, res, next) => {
     });
 };
 
+// business logic
+const findPhones = async (req, res, next) => {
+  const { pers_id } = req.params;
+  let sql = `SELECT * FROM public.phone
+      where pers_id = :pers_id`;
+  db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT, 
+    replacements: {
+      pers_id: pers_id
+    }
+  }).then(data => {
+      if (data) {
+        res.status(200).json({ success: true, data: data });
+      } else {
+        res.status(404).send({ success: false, message: `Cannot find records.` });
+      }
+    })
+    .catch(err => {
+      next(err)
+    });
+};
+
+const findEmails = async (req, res, next) => {
+  const { pers_id } = req.params;
+  let sql = `SELECT email_id, email_address, pers_id FROM public.email_address
+      where pers_id = :pers_id`;
+  db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT, 
+    replacements: {
+      pers_id: pers_id
+    }
+  }).then(data => {
+      if (data) {
+        res.status(200).json({ success: true, data: data });
+      } else {
+        res.status(404).send({ success: false, message: `Cannot find records.` });
+      }
+    })
+    .catch(err => {
+      next(err)
+    });
+};
+
+const addLanguage = async (req, res, next) => {
+  const { lang_id, pers_id } = req.body;
+  const t = await db.sequelize.transaction();
+  try {
+    // needs to save other person information
+    const person_language = PersonLanguage.build({ 
+      lang_id: lang_id, 
+      pers_id: pers_id
+    });
+    await person_language.save({ transaction: t });
+
+    res.status(200).json({ success: true, data: person_language });
+    await t.commit();
+  } catch (err) {
+    await t.rollback();
+    next(err)
+  }
+};
+
+const findLanguages = async (req, res, next) => {
+  const { pers_id } = req.params;
+  let sql = `SELECT person_language.lang_id, language_name, language_code, pers_id
+    FROM public.person_language
+    inner join public.language on language.lang_id = person_language.lang_id
+    where person_language.pers_id = :pers_id`;
+  db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT, 
+    replacements: {
+      pers_id: pers_id
+    }
+  }).then(data => {
+      if (data) {
+        res.status(200).json({ success: true, data: data });
+      } else {
+        res.status(404).send({ success: false, message: `Cannot find records.` });
+      }
+    })
+    .catch(err => {
+      next(err)
+    });
+};
+
+const findAddresses = async (req, res, next) => {
+  const { pers_id } = req.params;
+  let sql = `SELECT adress_id, street_line1, street_line2, neighborhood, city, state, zipcode, pers_id 
+    FROM address
+    where pers_id = :pers_id`;
+  db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT, 
+    replacements: {
+      pers_id: pers_id
+    }
+  }).then(data => {
+      if (data) {
+        res.status(200).json({ success: true, data: data });
+      } else {
+        res.status(404).send({ success: false, message: `Cannot find records.` });
+      }
+    })
+    .catch(err => {
+      next(err)
+    });
+};
+
 module.exports = {
-  findAll, findOne, create, update, remove
+  findAll, findOne, create, update, remove, findPhones, findEmails, findLanguages, findAddresses, addLanguage
 };

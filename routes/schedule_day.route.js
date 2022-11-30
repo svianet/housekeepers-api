@@ -4,8 +4,8 @@ const controller = require('../controllers/schedule_day.controller');
 const api = Router();
 
 api.post('/', controller.create);
-api.get('/', controller.findAll);
-api.get('/:id', controller.findOne);
+// api.get('/', controller.findAll);
+api.get('/:schedule_id/:id', controller.findOne);
 api.patch('/:id', controller.update);
 api.delete('/:id', controller.remove);
 

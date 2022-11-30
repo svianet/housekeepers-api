@@ -5,7 +5,7 @@ const { tableName, schema } = Service.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT service_id, service_name FROM ${schema}.${tableName}`;
+  let sql = `SELECT service_id, service_name FROM ${schema}.${tableName} order by service_name`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {

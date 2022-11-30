@@ -4,84 +4,48 @@
 const { DataTypes } = require("sequelize"); // Import the built-in data types
 const service_completion = {
     service_comp_id: {
-
         type: DataTypes.NUMBER
         , allowNull: false
         , autoIncrement: true
-        , primaryKey: true
-        
+        , primaryKey: true        
     },
-service_comp_status: {
-
+    service_comp_status: {
         type: DataTypes.STRING
         , allowNull: false
-        
-        
         , validate: { len: [0, 1] }
     },
-job_id: {
-
+    job_id: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-user_id: {
-
+    user_id: {
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     },
-review: {
-
+    review: {
         type: DataTypes.STRING
         , allowNull: true
-        
-        
-        
     },
-start_date: {
-
+    start_date: {
         type: DataTypes.DATE
         , allowNull: true
-        
-        
-        
     },
-end_date: {
-
+    end_date: {
         type: DataTypes.DATE
         , allowNull: true
-        
-        
-        
     },
-confirmation_code: {
-
+    confirmation_code: {
         type: DataTypes.STRING
-        , allowNull: false
-        
-        
+        , allowNull: true
         , validate: { len: [0, 10] }
     },
-appointment_id: {
-
+    appointment_id: {
         type: DataTypes.NUMBER
         , allowNull: true
-        
-        
-        
     },
-confirmation_date: {
-
+    confirmation_date: {
         type: DataTypes.DATE
         , allowNull: true
-        
-        
-        
     }
 };
 

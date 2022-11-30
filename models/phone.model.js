@@ -11,6 +11,10 @@ const phone = {
         , primaryKey: true
         
     },
+    ddi: {
+        type: DataTypes.NUMBER
+        , allowNull: false
+    },
 phone_number: {
 
         type: DataTypes.STRING
@@ -28,12 +32,8 @@ creation_date: {
         
     },
 pers_id: {
-
         type: DataTypes.NUMBER
         , allowNull: false
-        
-        
-        
     }
 };
 

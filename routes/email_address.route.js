@@ -1,6 +1,6 @@
 'use strict';
 const { Router } = require('express');
-const controller = require('../controllers/applicant.controller');
+const controller = require('../controllers/email_address.controller');
 const api = Router();
 
 api.post('/', controller.create);

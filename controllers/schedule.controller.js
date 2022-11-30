@@ -5,7 +5,7 @@ const { tableName, schema } = Schedule.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT schedule_id, user_id, creation_date FROM ${schema}.${tableName}`;
+  let sql = `SELECT schedule_id, user_id, schedule_name, creation_date FROM ${schema}.${tableName}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {
@@ -36,13 +36,13 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { schedule_id, user_id, creation_date } = req.body;
+  const { user_id, schedule_name } = req.body;
   const t = await db.sequelize.transaction();
   try {
     const schedule = Schedule.build({
-        schedule_id: schedule_id,
-user_id: user_id,
-creation_date: creation_date
+      user_id: user_id,
+      schedule_name: schedule_name,
+      creation_date: new Date()
     });
     await schedule.save({ transaction: t });
 
@@ -55,14 +55,11 @@ creation_date: creation_date
 };
 
 const update = async (req, res, next) => {
-  const { id } = req.params; // but get parameters
-  // @todo capture the attributes to create your class
-  const { schedule_id, user_id, creation_date } = req.body;
+  const { id } = req.params;
+  const { schedule_name } = req.body;
   
   Schedule.update({
-        schedule_id: schedule_id,
-user_id: user_id,
-creation_date: creation_date
+      schedule_name: schedule_name
     },
     {
       where: { schedule_id: id }
@@ -97,6 +94,27 @@ const remove = async (req, res, next) => {
     });
 };
 
+const findConfig = async (req, res, next) => {
+  const { schedule_id } = req.params;
+  let sql = `SELECT schedule_day_id, schedule_id, schedule_day, time_start, time_end
+	    FROM public.schedule_day
+      where schedule_id = :schedule_id`;
+  db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT, 
+    replacements: {
+      schedule_id: schedule_id
+    }
+  }).then(data => {
+      if (data) {
+        res.status(200).json({ success: true, data: data });
+      } else {
+        res.status(404).send({ success: false, message: `Cannot find records.` });
+      }
+    })
+    .catch(err => {
+      next(err)
+    });
+};
+
 module.exports = {
-  findAll, findOne, create, update, remove
+  findAll, findOne, create, update, remove, findConfig
 };

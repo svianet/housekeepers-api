@@ -1,6 +1,6 @@
 'use strict';
 const db = require("../models");
-const constants = require("../util/constants");
+const { ROLE } = require('../util/constants');
 
 // Operations using plain SQL (selects)
 const findHousekeeper = async (req, res, next) => {
@@ -10,7 +10,7 @@ const findHousekeeper = async (req, res, next) => {
     inner join person on person.pers_id = account.pers_id
     inner join user_role on user_role.user_id = account.user_id
     inner join account_config on account_config.user_id = user_role.user_id
-    where user_role.role_id = ${constants.ROLE.HOUSEKEEPER}`;
+    where user_role.role_id = ${ROLE.HOUSEKEEPER}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {

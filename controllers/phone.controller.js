@@ -5,7 +5,7 @@ const { tableName, schema } = Phone.options;
 
 // Operations using plain SQL (selects)
 const findAll = async (req, res, next) => {
-  let sql = `SELECT phone_id, phone_number, creation_date, pers_id FROM ${schema}.${tableName}`;
+  let sql = `SELECT phone_id, ddi, phone_number, creation_date, pers_id FROM ${schema}.${tableName}`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT })
     .then(data => {
       if (data) {
@@ -36,14 +36,14 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { phone_id, phone_number, creation_date, pers_id } = req.body;
+  const { ddi, phone_number, pers_id } = req.body;
   const t = await db.sequelize.transaction();
   try {
     const phone = Phone.build({
-        phone_id: phone_id,
-phone_number: phone_number,
-creation_date: creation_date,
-pers_id: pers_id
+      phone_number: phone_number,
+      ddi: ddi,
+      pers_id: pers_id,
+      creation_date: new Date()
     });
     await phone.save({ transaction: t });
 
@@ -58,16 +58,14 @@ pers_id: pers_id
 const update = async (req, res, next) => {
   const { id } = req.params; // but get parameters
   // @todo capture the attributes to create your class
-  const { phone_id, phone_number, creation_date, pers_id } = req.body;
+  const { ddi, phone_number, pers_id } = req.body;
   
   Phone.update({
-        phone_id: phone_id,
-phone_number: phone_number,
-creation_date: creation_date,
-pers_id: pers_id
+      phone_number: phone_number,
+      ddi: ddi
     },
     {
-      where: { phone_id: id }
+      where: { phone_id: id, pers_id: pers_id }
     })
     .then(num => {
       if (num == 1) {
