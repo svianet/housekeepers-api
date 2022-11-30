@@ -7,13 +7,13 @@ CREATE TABLE IF NOT EXISTS public.account
 (
     user_id serial NOT NULL,
     email character varying(100) NOT NULL,
-    failed_access numeric NOT NULL DEFAULT 0,
+    failed_access integer NOT NULL DEFAULT 0,
     pers_id integer,
-    PRIMARY KEY (user_id)
+    account_status character varying(1) DEFAULT 'P',
+    unique_user_id character varying(36),
+    CONSTRAINT pk_user_id PRIMARY KEY (user_id),
+    CONSTRAINT un_email UNIQUE (email)
 );
-
-ALTER TABLE IF EXISTS public.account
-    ADD COLUMN account_status character varying(1) DEFAULT 'P';
 
 COMMENT ON COLUMN public.account.account_status
     IS 'P - Pending
@@ -23,6 +23,9 @@ X - Removed';
 
 COMMENT ON COLUMN public.account.failed_access
     IS 'Quantity of access to the system with the wrong password';
+
+COMMENT ON COLUMN public.account.unique_user_id
+    IS 'User''s ID from authsignal APP';
 
 CREATE UNIQUE INDEX un_user_email
     ON public.account USING btree
@@ -69,6 +72,8 @@ CREATE TABLE IF NOT EXISTS public.phone
     pers_id integer NOT NULL,
     PRIMARY KEY (phone_id)
 );
+ALTER TABLE IF EXISTS public.phone
+    ADD COLUMN ddi integer NOT NULL;
 
 CREATE TABLE IF NOT EXISTS public.address
 (
@@ -129,6 +134,9 @@ CREATE TABLE IF NOT EXISTS public.job
     PRIMARY KEY (job_id)
 );
 
+ALTER TABLE IF EXISTS public.job
+    ADD CONSTRAINT ck_job_status CHECK (job_status in ('O','C','E','D','A'));
+
 COMMENT ON COLUMN public.job.job_type
     IS 'R - Recurring, O - One time job';
 
@@ -170,6 +178,7 @@ CREATE TABLE IF NOT EXISTS public.schedule
     schedule_id serial NOT NULL,
     user_id integer NOT NULL,
     creation_date timestamp without time zone NOT NULL DEFAULT current_timestamp,
+    schedule_name character varying(100),
     PRIMARY KEY (schedule_id)
 );
 
@@ -183,18 +192,24 @@ CREATE TABLE IF NOT EXISTS public.schedule_day
     PRIMARY KEY (schedule_day_id)
 );
 
+ALTER TABLE IF EXISTS public.schedule_day
+    ADD CONSTRAINT ck_schedule_day CHECK (schedule_day in ('S','M','T','W','H','F','A'));
+
 COMMENT ON COLUMN public.schedule_day.schedule_day
     IS 'Sunday, Monday, etc.';
 
-CREATE TABLE IF NOT EXISTS public.applicant_list
+CREATE TABLE IF NOT EXISTS public.application
 (
+    application_id serial NOT NULL,
     user_id integer NOT NULL,
     job_id integer NOT NULL,
     application_status character varying NOT NULL,
-    application_date timestamp without time zone NOT NULL DEFAULT current_timestamp
+    application_date timestamp without time zone NOT NULL DEFAULT current_timestamp,
+    PRIMARY KEY (application_id),
+    CONSTRAINT un_application_user_job UNIQUE (user_id, job_id)
 );
 
-COMMENT ON COLUMN public.applicant_list.application_status
+COMMENT ON COLUMN public.application.application_status
     IS 'Status: R - Requested, V - Viewed, A - Accepted, X - Reject';
 
 CREATE TABLE IF NOT EXISTS public.service_completion
@@ -206,14 +221,14 @@ CREATE TABLE IF NOT EXISTS public.service_completion
     review text,
     start_date timestamp without time zone,
     end_date timestamp without time zone,
-    confirmation_code character varying(10) NOT NULL,
+    confirmation_code character varying(10),
     appointment_id integer,
     confirmation_date timestamp without time zone,
     PRIMARY KEY (service_comp_id)
 );
 
 COMMENT ON COLUMN public.service_completion.service_comp_status
-    IS 'Service execution status. O - Opened, S - Started, E - Executed, C - Cancelled';
+    IS 'Service execution status. O - Opened, S - Started, D - Done, C - Cancelled';
 
 COMMENT ON COLUMN public.service_completion.confirmation_code
     IS 'Code used to validate the service execution and confirm that the housekeeper is the right person';
@@ -255,12 +270,38 @@ CREATE TABLE IF NOT EXISTS public.contact
     PRIMARY KEY (contact_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.account_service
+(
+    user_id integer NOT NULL,
+    service_id integer NOT NULL,
+    PRIMARY KEY (user_id, service_id)
+);
+
+ALTER TABLE IF EXISTS public.account_config
+    ADD FOREIGN KEY (user_id)
+    REFERENCES public.account (user_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+ALTER TABLE IF EXISTS public.account_service
+    ADD FOREIGN KEY (service_id)
+    REFERENCES public.service (service_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.account_service
+    ADD FOREIGN KEY (user_id)
+    REFERENCES public.account (user_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
 ALTER TABLE IF EXISTS public.account
     ADD FOREIGN KEY (pers_id)
     REFERENCES public.person (pers_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.user_role
@@ -268,7 +309,7 @@ ALTER TABLE IF EXISTS public.user_role
     REFERENCES public.account (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.user_role
@@ -276,7 +317,7 @@ ALTER TABLE IF EXISTS public.user_role
     REFERENCES public.role (role_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.phone
@@ -284,7 +325,7 @@ ALTER TABLE IF EXISTS public.phone
     REFERENCES public.person (pers_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.address
@@ -292,7 +333,7 @@ ALTER TABLE IF EXISTS public.address
     REFERENCES public.person (pers_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.person_language
@@ -300,7 +341,7 @@ ALTER TABLE IF EXISTS public.person_language
     REFERENCES public.language (lang_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.person_language
@@ -308,7 +349,7 @@ ALTER TABLE IF EXISTS public.person_language
     REFERENCES public.person (pers_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.job
@@ -316,7 +357,7 @@ ALTER TABLE IF EXISTS public.job
     REFERENCES public.account (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.job_service
@@ -324,7 +365,7 @@ ALTER TABLE IF EXISTS public.job_service
     REFERENCES public.job (job_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.job_service
@@ -332,7 +373,7 @@ ALTER TABLE IF EXISTS public.job_service
     REFERENCES public.service (service_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.schedule
@@ -340,7 +381,7 @@ ALTER TABLE IF EXISTS public.schedule
     REFERENCES public.account (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.schedule_day
@@ -348,31 +389,28 @@ ALTER TABLE IF EXISTS public.schedule_day
     REFERENCES public.schedule (schedule_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
-ALTER TABLE IF EXISTS public.applicant_list
+ALTER TABLE IF EXISTS public.application
     ADD FOREIGN KEY (user_id)
     REFERENCES public.account (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+    ON DELETE NO ACTION;
 
 
-ALTER TABLE IF EXISTS public.applicant_list
+ALTER TABLE IF EXISTS public.application
     ADD FOREIGN KEY (job_id)
     REFERENCES public.job (job_id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+    ON DELETE NO ACTION;
 
 
 ALTER TABLE IF EXISTS public.service_completion
     ADD FOREIGN KEY (job_id)
     REFERENCES public.job (job_id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+    ON DELETE NO ACTION;
 
 
 ALTER TABLE IF EXISTS public.service_completion
@@ -380,7 +418,7 @@ ALTER TABLE IF EXISTS public.service_completion
     REFERENCES public.account (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.service_completion
@@ -388,7 +426,7 @@ ALTER TABLE IF EXISTS public.service_completion
     REFERENCES public.appointment (appointment_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.appointment
@@ -396,7 +434,7 @@ ALTER TABLE IF EXISTS public.appointment
     REFERENCES public.job (job_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.appointment
@@ -404,7 +442,7 @@ ALTER TABLE IF EXISTS public.appointment
     REFERENCES public.account (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.appointment
@@ -412,7 +450,7 @@ ALTER TABLE IF EXISTS public.appointment
     REFERENCES public.account (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.email_address
@@ -420,7 +458,7 @@ ALTER TABLE IF EXISTS public.email_address
     REFERENCES public.person (pers_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.contact
@@ -428,7 +466,7 @@ ALTER TABLE IF EXISTS public.contact
     REFERENCES public.account (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 
 ALTER TABLE IF EXISTS public.contact
@@ -436,6 +474,6 @@ ALTER TABLE IF EXISTS public.contact
     REFERENCES public.person (pers_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
-    NOT VALID;
+    ;
 
 END;
