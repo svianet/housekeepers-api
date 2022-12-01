@@ -17,5 +17,7 @@ api.delete('/:id', controller.remove);
 // LOGIC BUSINESS ROUTES
 api.post('/approve', controller.approve);
 api.post('/reject', controller.reject);
+api.post('/saveprofile', controller.saveProfile);
+api.post('/retrieveProfile', controller.retrieveProfile);
 
 module.exports = api;

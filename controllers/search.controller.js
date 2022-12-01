@@ -4,7 +4,7 @@ const { ROLE } = require('../util/constants');
 
 // Operations using plain SQL (selects)
 const findHousekeeper = async (req, res, next) => {
-  let sql = `select account.user_id, person.first_name, person.last_name, person.bio, person.gender
+  let sql = `select account.user_id, person.first_name, person.last_name, person.bio, person.gender, person.image_url, person.cover_url
       , account_config.hour_rate_start, account_config.hour_rate_end, account_config.years_experience
     from account
     inner join person on person.pers_id = account.pers_id

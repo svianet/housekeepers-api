@@ -47,9 +47,11 @@ app.use((error, req, res, next) => {
   }
 
   let myError = new Error();
+  myError.success = error.statusCode == 200;
   myError.statusCode = error.statusCode || 500;
   myError.message = error.message;
-  myError.stack = error.stack;
+  //myError.stack = error.stack;
+  console.log(myError);
   
   // set locals, only providing error in development
   res.locals.message = error.message;

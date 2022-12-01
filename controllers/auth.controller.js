@@ -7,7 +7,7 @@ const login = async (req, res, next) => {
     req.session.regenerate(function (err) {
         if (err) next(err)
         // store user information in session
-        req.session.user = {};
+        req.session.user = null;
         AuthService.checkAuthetication(userId).then((validateUser) => {
             if (validateUser.success) {
                 req.session.user = validateUser.data;
@@ -23,6 +23,31 @@ const login = async (req, res, next) => {
                 myError.statusCode = 401;
                 myError.message = "Failed on validate your credentials! Please, log in the application again!";
                 res.status(401).send(myError);
+            }
+        }).catch((err) => {
+            next(err);
+        });
+    })
+
+    // @todo: regenerate the session, which is good practice to help guard against forms of session fixation
+    
+}
+
+const revalidate = async (req, res, next) => {
+    const { userId } = req.body;
+
+    req.session.regenerate(function (err) {
+        if (err) next(err)
+        // store user information in session
+        req.session.user = null;
+        AuthService.checkAuthetication(userId).then((validateUser) => {
+            if (validateUser.success) {
+                req.session.user = validateUser.data;
+                // save the session before redirection to ensure page
+                // load does not happen before session is saved
+                req.session.save(function (err) {
+                    if (err) return next(err)
+                })
             }
         }).catch((err) => {
             next(err);
@@ -53,5 +78,5 @@ const logout = async (req, res, next) => {
 };
 
 module.exports = {
-  login, logout
+  login, logout, revalidate
 };

@@ -9,6 +9,7 @@ const myAuth = function (req, res, next) {
         const { userId } = req.body;    
         req.session.user = {};
         AuthService.checkAuthetication(userId).then((validateUser) => {
+            // console.log("validateUser", validateUser)
             if (validateUser.success) {
                 req.session.user = validateUser.data;
                 next();

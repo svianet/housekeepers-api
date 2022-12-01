@@ -37,7 +37,7 @@ const findOne = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  const { first_name, last_name, birthday, gender, bio, image_url, cover_url } = req.body;
   const t = await db.sequelize.transaction();
   try {
     // needs to save other person information
@@ -46,7 +46,9 @@ const create = async (req, res, next) => {
       last_name: last_name, 
       birthday: birthday, 
       gender: gender, 
-      bio: bio
+      bio: bio,
+      image_url: image_url,
+      cover_url: cover_url
     });
     await person.save({ transaction: t });
 
@@ -60,14 +62,16 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const { id } = req.params; // but get parameters
-  const { first_name, last_name, birthday, gender, bio } = req.body;
+  const { first_name, last_name, birthday, gender, bio, image_url, cover_url } = req.body;
   
   Person.update({
       first_name: first_name, 
       last_name: last_name, 
       birthday: birthday, 
       gender: gender, 
-      bio: bio
+      bio: bio,
+      image_url: image_url,
+      cover_url: cover_url
     },
     {
       where: { pers_id: id }
@@ -105,7 +109,8 @@ const remove = async (req, res, next) => {
 // business logic
 const findPhones = async (req, res, next) => {
   const { pers_id } = req.params;
-  let sql = `SELECT * FROM public.phone
+  let sql = `SELECT phone_id, phone_number, creation_date, pers_id, ddi
+      FROM public.phone
       where pers_id = :pers_id`;
   db.sequelize.query(sql, { raw: true, type: db.sequelize.QueryTypes.SELECT, 
     replacements: {

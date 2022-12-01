@@ -12,7 +12,7 @@ const checkAuthetication = async (userId) => {
         // @todo use only the user table and get configuration in other request
         let account = {};
         let sql = `select account.email, account.account_status, account.failed_access, account.user_id, account.pers_id, account.unique_user_id
-                , person.first_name, person.last_name, person.gender, user_role.role_id
+                , person.first_name, person.last_name, person.gender, person.image_url, user_role.role_id
             from account
             left join person on person.pers_id = account.pers_id
             left join user_role on user_role.user_id = account.user_id

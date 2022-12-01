@@ -50,7 +50,7 @@ INSERT INTO public.account(user_id, email, failed_access, pers_id)
 INSERT INTO public.user_role(user_id, role_id) 
 	VALUES (currval('account_user_id_seq'::regclass), 2);
 INSERT INTO public.account_config(config_id, user_id, hour_rate_start, hour_rate_end, years_experience)
-	VALUES (nextval('account_config_config_id_seq'::regclass), 2, 11, 22, 4);
+	VALUES (nextval('account_config_config_id_seq'::regclass), currval('account_user_id_seq'::regclass), 11, 22, 4);
 
 -- customer
 INSERT INTO public.person(pers_id, first_name, last_name, birthday, gender, bio)

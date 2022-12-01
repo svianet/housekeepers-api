@@ -48,6 +48,18 @@ const person = {
       len: [20,2000]
     }
   },
+  image_url: {
+    type: DataTypes.STRING,
+    validate: {
+      len: [0,1000]
+    }
+  },
+  cover_url: {
+    type: DataTypes.STRING,
+    validate: {
+      len: [0,1000]
+    }
+  },
   full_name: {
     type: DataTypes.VIRTUAL,
     get() {
