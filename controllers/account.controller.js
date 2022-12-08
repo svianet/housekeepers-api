@@ -1,10 +1,10 @@
 'use strict';
-const myAuth = require("../middlewares/auth.middleware");
 const authController = require("./auth.controller");
 const db = require("../models");
 const Account = require("../models/account.model.js")(db.sequelize);
 const Person = require("../models/person.model.js")(db.sequelize);
 const UserRole = require("../models/user_role.model.js")(db.sequelize);
+const PersonLanguage = require("../models/person_language.model.js")(db.sequelize);
 const { ACCOUNT } = require('../util/constants');
 const { tableName, schema } = Account.options;
 
@@ -109,7 +109,7 @@ const remove = async (req, res, next) => {
 };
 
 const approve = async (req, res, next) => {
-  const { id } = req.body; // but get parameters
+  const { id } = req.body;
   
   Account.update({
       account_status: ACCOUNT.VALIDATED
@@ -150,10 +150,26 @@ const reject = async (req, res, next) => {
     });
 }
 
+const retrieveProfile = async (req, res, next) => {
+  const currentUser = req.session.user;
+  try {
+    const myProfile = {
+      person: await Person.findByPk(currentUser.pers_id),
+      account: await Account.findByPk(currentUser.user_id),
+      languages: await PersonLanguage.findAll({ where: { pers_id: currentUser.pers_id } }),
+      role_id: currentUser.role_id
+    }
+    res.status(200).json({ success: true, data: myProfile });
+  } catch (err) {
+    next(err)
+  }
+}
+
+
 // we will manager all transactions and relationships. This approach will give us more flexibility and performance
 const saveProfile = async (req, res, next) => {
   const myPerson = req.body.person;
-  const { role_id } = req.body;
+  const { role_id, languages } = req.body;
 
   const t = await db.sequelize.transaction();
   try {
@@ -181,11 +197,12 @@ const saveProfile = async (req, res, next) => {
     }, { 
       transaction: t,
       where: { user_id: currentUser.user_id } 
-    })
-    
+    });
+
     // define user_role
     if (currentUser.role_id == null || currentUser.role_id != role_id) {
-      UserRole.destroy({
+      await UserRole.destroy({
+        transaction: t,
         where: { user_id: currentUser.user_id }
       });
       const user_role = UserRole.build({
@@ -195,36 +212,31 @@ const saveProfile = async (req, res, next) => {
       await user_role.save({ transaction: t });
     }
 
-    await t.commit();
-    
-    const myProfile = {
-      person: await Person.findByPk(currentUser.pers_id),
-      account: await Account.findByPk(currentUser.user_id),
-      role_id: role_id
+    // define languages
+    if (languages) {
+      await PersonLanguage.destroy({
+        transaction: t,
+        where: { pers_id: person.pers_id }
+      });
+      for (let i = 0; i < languages.length; i++) {
+        let person_language = PersonLanguage.build({
+          pers_id: person.pers_id,
+          lang_id: languages[i]
+        });
+        await person_language.save({ transaction: t });
+      }
     }
+    await t.commit();
+
     // revalidate user after update
     authController.revalidate(req, res, next);
-    res.status(200).json({ success: true, data: myProfile });
+    retrieveProfile(req, res, next);
     
   } catch (err) {
     await t.rollback();
     next(err)
   }
 };
-
-const retrieveProfile = async (req, res, next) => {
-  const currentUser = req.session.user;
-  try {
-    const myProfile = {
-      person: await Person.findByPk(currentUser.pers_id),
-      account: await Account.findByPk(currentUser.user_id),
-      role_id: currentUser.role_id
-    }
-    res.status(200).json({ success: true, data: myProfile });
-  } catch (err) {
-    next(err)
-  }
-}
 
 module.exports = {
   findAll, findOne, create, update, remove, approve, reject, saveProfile, retrieveProfile

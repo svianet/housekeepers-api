@@ -40,7 +40,6 @@ const create = async (req, res, next) => {
   const { first_name, last_name, birthday, gender, bio, image_url, cover_url } = req.body;
   const t = await db.sequelize.transaction();
   try {
-    // needs to save other person information
     const person = Person.build({ 
       first_name: first_name, 
       last_name: last_name, 
@@ -51,7 +50,6 @@ const create = async (req, res, next) => {
       cover_url: cover_url
     });
     await person.save({ transaction: t });
-
     res.status(200).json({ success: true, data: person });
     await t.commit();
   } catch (err) {
@@ -61,7 +59,7 @@ const create = async (req, res, next) => {
 };
 
 const update = async (req, res, next) => {
-  const { id } = req.params; // but get parameters
+  const { id } = req.params;
   const { first_name, last_name, birthday, gender, bio, image_url, cover_url } = req.body;
   
   Person.update({
