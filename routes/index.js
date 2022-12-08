@@ -1,0 +1,41 @@
+'use strict';
+const router = require('express').Router();
+const myAuth = require('../middlewares/auth.middleware');
+const authRouter = require('./auth.route');
+const accountRouter = require('./account.route');
+const accountConfigRouter = require('./account_config.route');
+const roleRouter = require('./role.route');
+const languageRouter = require('./language.route');
+const serviceRouter = require('./service.route');
+const personRouter = require('./person.route');
+const addressRouter = require('./address.route');
+const emailRouter = require('./email_address.route');
+const phoneRouter = require('./phone.route');
+const scheduleRouter = require('./schedule.route');
+const scheduleDayRouter = require('./schedule_day.route');
+const applicationRouter = require('./application.route');
+const appointmentRouter = require('./appointment.route');
+const serviceCompletionRouter = require('./service_completion.route');
+const jobRouter = require('./job.route');
+const searchRouter = require('./search.route');
+
+// add here new routes if exists. You have include the auth middleware
+router.use('/auth', authRouter);
+router.use('/account', myAuth, accountRouter);
+router.use('/account/config', myAuth, accountConfigRouter);
+router.use('/role', myAuth, roleRouter);
+router.use('/language', myAuth, languageRouter);
+router.use('/service', myAuth, serviceRouter);
+router.use('/person', myAuth, personRouter);
+router.use('/address', myAuth, addressRouter);
+router.use('/email', myAuth, emailRouter);
+router.use('/phone', myAuth, phoneRouter);
+router.use('/schedule', myAuth, scheduleRouter);
+router.use('/schedule/config', myAuth, scheduleDayRouter);
+router.use('/application', myAuth, applicationRouter);
+router.use('/appointment', myAuth, appointmentRouter);
+router.use('/service_completion', myAuth, serviceCompletionRouter);
+router.use('/job', myAuth, jobRouter);
+router.use('/search', searchRouter);
+
+module.exports = router;
